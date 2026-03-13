@@ -1,0 +1,38 @@
+<template>
+    <p class="slds-text-heading_small slds-m-bottom_small"><strong>Update Quote Line Item Fields</strong></p>
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_1-of-2">
+            <lightning-input
+                type="text"
+                label="Special Note"
+                name="input1"
+                value={input1Value}
+                onchange={handleInput1Change}
+            ></lightning-input>
+            <template lwc:if={showInput1SaveCancel}>
+                <div class="slds-m-top_small">
+                    <lightning-button
+                        label="Save"
+                        variant="brand"
+                        onclick={handleInput1Save}
+                        class="slds-m-right_x-small"
+                    ></lightning-button>
+                    <lightning-button
+                        label="Cancel"
+                        variant="neutral"
+                        onclick={handleInput1Cancel}
+                    ></lightning-button>
+                </div>
+            </template>
+        </div>
+        <div class="slds-col slds-size_1-of-2">
+            <lightning-input
+                type="toggle"
+                label="Apply Contingency"
+                name="input2"
+                checked={input2Value}
+                onchange={handleInput2Change}
+            ></lightning-input>
+        </div>
+    </div>
+</template>

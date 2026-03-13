@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2024 salesforce.com, inc. 
+  ~ All Rights Reserved 
+  ~ Company Confidential
+  -->
+
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>My Third Party Configurator Component</masterLabel>
+    <description>My custom component that I will use in the 
+        Configurator UI</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property
+                    name="transactionLineId"
+                    type="String"
+                    required="true"
+                    label="Line Item ID"
+                    description="Enter the ID of the transaction line to configure."
+                    role="inputOnly" />
+            <property
+                    name="currentTransactionLineId"
+                    type="String"
+                    required="true"
+                    label="Current Line Item ID"
+                    description="The ID of the transaction line to launch the configurator."
+                    role="inputOnly" />
+            <property
+                    name="salesTransactionItems"
+                    type="apex://ProductConfig.SalesTransactionItem[]"
+                    label="Sales Transaction Items"
+                    description="A collection of Apex ProductConfig__SalesTransactionItem records that contain sales transaction item details."
+                    role="inputOnly" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
