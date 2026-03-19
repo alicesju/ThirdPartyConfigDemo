@@ -11,13 +11,26 @@ const LMS_EVENTS = Object.freeze({
 
 const STATE_FIELDS = Object.freeze({
     SPECIALNOTE: "SpecialNote__c",
-    APPLYCONTINGENCY: "ApplyContingency__c"
+    APPLYCONTINGENCY: "ApplyContingency__c",
+    READYFORREVIEW: "ReadyForReview__c",
+    FULFILLEDBY: "FulfilledBy__c"
 });
+
+const FULFILLED_BY_OPTIONS = [
+    { label: "Internal", value: "Internal" },
+    { label: "Third Party", value: "Third Party" }
+];
 
 export default class MyComponent extends LightningElement {
     input1Value = '';
     input2Value = false;
+    readyForReviewValue = false;
+    fulfilledByValue = '';
+    showQuoteFieldsSave = false;
 
+    fulfilledByOptions = FULFILLED_BY_OPTIONS;
+
+    @api quoteId;
     @api transactionLineId;
     @api currentTransactionLineId;
     @api salesTransactionItems;
@@ -65,6 +78,7 @@ export default class MyComponent extends LightningElement {
     // Subscribes to the Lightning Message Service channel to receive message
     subscribeToMessageChannel() {
        if (!this.subscription) {
+        console.log('[customProductHeader] subscribeToMessageChannel: subscribing to message channel'+ this.subscription);
            this.subscription = subscribe(
                this.messageContext,
                CONFIGR_CHANNEL,
@@ -78,10 +92,53 @@ export default class MyComponent extends LightningElement {
             this._transactionLineIdOverride = message.key[1];
             this.input1Value = '';
             this.input2Value = false;
+            this.readyForReviewValue = false;
+            this.fulfilledByValue = '';
+            this.showQuoteFieldsSave = false;
             this._input1UserModified = false;
             this._input1OriginalValue = '';
             this.showInput1SaveCancel = false;
         }
+    }
+
+    handleReadyForReviewChange(event) {
+        this.readyForReviewValue = event.target.checked;
+        this.showQuoteFieldsSave = true;
+    }
+
+    handleFulfilledByChange(event) {
+        this.fulfilledByValue = event.detail.value;
+        this.showQuoteFieldsSave = true;
+    }
+
+    handleQuoteFieldsSave() {
+        this.publishFieldValue(this.quoteId, STATE_FIELDS.READYFORREVIEW, this.readyForReviewValue);
+        this.publishFieldValue(this.quoteId, STATE_FIELDS.FULFILLEDBY, this.fulfilledByValue);
+        this.showQuoteFieldsSave = false;
+    }
+
+    /**
+     * Reusable helper to publish a single field value to the Product Configurator Data Manager.
+     * @param {string} key - The entity key as a single string (e.g. quoteId or lineId)
+     * @param {string} field - The field API name
+     * @param {*} value - The field value
+     */
+    publishFieldValue(key, field, value) {
+        const keyString = typeof key === 'string' ? key : (Array.isArray(key) ? key[0] : String(key ?? ''));
+        if (!this.messageContext || !keyString) {
+            return;
+        }
+        const bulkMessagePayload = {
+            action: LMS_EVENTS.VALUE_CHANGE,
+            data: [
+                {
+                    key: keyString,
+                    values: [{ field, value }]
+                }
+            ]
+        };
+        console.log('[customProductHeader] publishFieldValue payload:', JSON.stringify(bulkMessagePayload, null, 2));
+        publish(this.messageContext, CONFIGR_CHANNEL, bulkMessagePayload);
     }
 
     handleInput1Change(event) {
@@ -111,45 +168,10 @@ export default class MyComponent extends LightningElement {
     }
 
     sendInput2ToDataManager() {
-        const lineId = this.transactionLineIdForPublish;
-        if (!this.messageContext || !lineId) {
-            return;
-        }
-        const bulkMessagePayload = {
-            action: LMS_EVENTS.VALUE_CHANGE,
-            data: [
-                {
-                    key: [lineId],
-                    values: [
-                        {
-                            field: STATE_FIELDS.APPLYCONTINGENCY,
-                            value: this.input2Value
-                        }
-                    ]
-                }
-            ]
-        };
-        publish(this.messageContext, CONFIGR_CHANNEL, bulkMessagePayload);
+        this.publishFieldValue(this.transactionLineIdForPublish, STATE_FIELDS.APPLYCONTINGENCY, this.input2Value);
     }
+
     sendInput1ToDataManager() {
-        const lineId = this.transactionLineIdForPublish;
-        if (!this.messageContext || !lineId) {
-            return;
-        }
-        const bulkMessagePayload = {
-            action: LMS_EVENTS.VALUE_CHANGE,
-            data: [
-                {
-                    key: [lineId],
-                    values: [
-                        {
-                            field: STATE_FIELDS.SPECIALNOTE,
-                            value: this.input1Value
-                        }
-                    ]
-                }
-            ]
-        };
-        publish(this.messageContext, CONFIGR_CHANNEL, bulkMessagePayload);
+        this.publishFieldValue(this.transactionLineIdForPublish, STATE_FIELDS.SPECIALNOTE, this.input1Value);
     }
 }

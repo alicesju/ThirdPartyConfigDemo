@@ -17,6 +17,13 @@
     <targetConfigs>
         <targetConfig targets="lightning__FlowScreen">
             <property
+                    name="quoteId"
+                    type="String"
+                    required="false"
+                    label="Quote ID"
+                    description="The ID of the quote for quote-level field updates."
+                    role="inputOnly" />
+            <property
                     name="transactionLineId"
                     type="String"
                     required="true"

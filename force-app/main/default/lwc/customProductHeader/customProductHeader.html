@@ -1,5 +1,38 @@
 <template>
-    <p class="slds-text-heading_small slds-m-bottom_small"><strong>Update Quote Line Item Fields</strong></p>
+    <!-- Update Quote Fields Section -->
+    <p class="slds-text-heading_small slds-m-bottom_small"><strong>Update Quote Fields</strong></p>
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_1-of-2">
+            <lightning-input
+                type="checkbox"
+                label="Ready for Review"
+                name="readyForReview"
+                checked={readyForReviewValue}
+                onchange={handleReadyForReviewChange}
+            ></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-2">
+            <lightning-combobox
+                label="Fulfilled by"
+                name="fulfilledBy"
+                value={fulfilledByValue}
+                options={fulfilledByOptions}
+                onchange={handleFulfilledByChange}
+            ></lightning-combobox>
+            <template lwc:if={showQuoteFieldsSave}>
+                <div class="slds-m-top_small">
+                    <lightning-button
+                        label="Save"
+                        variant="brand"
+                        onclick={handleQuoteFieldsSave}
+                    ></lightning-button>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Update Quote Line Fields Section -->
+    <p class="slds-text-heading_small slds-m-bottom_small slds-m-top_medium"><strong>Update Quote Line Fields</strong></p>
     <div class="slds-grid slds-gutters">
         <div class="slds-col slds-size_1-of-2">
             <lightning-input
