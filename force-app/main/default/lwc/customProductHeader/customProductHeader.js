@@ -74,6 +74,7 @@ export default class MyComponent extends LightningElement {
     }
     
     handleMessage(message) {
+        console.log('[customProductHeader] handleMessage payload:', JSON.stringify(message, null, 2));
         if (message?.action === LMS_EVENTS.NAVIGATE && message?.key?.length === 2 && message?.type === 'configure') {
             this._transactionLineIdOverride = message.key[1];
             this.input1Value = '';
@@ -129,6 +130,8 @@ export default class MyComponent extends LightningElement {
                 }
             ]
         };
+        console.log('[customProductHeader] publishFieldValue payload:', JSON.stringify(bulkMessagePayload, null, 2));
+
         publish(this.messageContext, CONFIGR_CHANNEL, bulkMessagePayload);
     }
     sendInput1ToDataManager() {
@@ -150,6 +153,7 @@ export default class MyComponent extends LightningElement {
                 }
             ]
         };
+        console.log('[customProductHeader] publishFieldValue payload:', JSON.stringify(bulkMessagePayload, null, 2));
         publish(this.messageContext, CONFIGR_CHANNEL, bulkMessagePayload);
     }
 }
