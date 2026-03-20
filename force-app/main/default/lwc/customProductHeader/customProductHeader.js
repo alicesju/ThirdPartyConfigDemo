@@ -1,30 +1,43 @@
 import {api, wire, LightningElement} from 'lwc';
 
 import {MessageContext, publish, subscribe} from 'lightning/messageService';
-
+// subscribe from the configuration channel
 import CONFIGR_CHANNEL from "@salesforce/messageChannel/lightning__productConfigurator_notification";
 
 const LMS_EVENTS = Object.freeze({
+    //events used in this example
     VALUE_CHANGE: "valueChanged",
     NAVIGATE: "navigate"
+    //other events that are avaialble
+    //CLOSE_PREVIEW: "closePreview",
+    //TOGGLE_INSTANT_PRICING: "toggleInstantPricing",
+    //TOGGLE_RULES_VALIDATION: "toggleRulesValidation",
+    //TOGGLE_COMPACT_LAYOUT: "toggleCompactLayout",
+    //UPDATE_PRICES: "updatePrices",
+    //VALIDATE_PRODUCT: "validateProduct",
+    //CLONE_ITEMS: "cloneItems",
 });
 
 const STATE_FIELDS = Object.freeze({
+//standard fields in the context definition
+    TERM: "SubscriptionTerm"
+//custom fields in the context definition
     SPECIALNOTE: "SpecialNote__c",
     APPLYCONTINGENCY: "ApplyContingency__c",
-    TERM: "SubscriptionTerm"
 });
 
 export default class MyComponent extends LightningElement {
     input1Value = '';
     input2Value = false;
-    termValue = 1;
+    termValue;
     showTermSaveCancel = false;
     _termOriginalValue = 1;
 
+    //input from the flow
     @api transactionLineId;
     @api currentTransactionLineId;
     @api salesTransactionItems;
+    //dynamically show and hide different sections from the flow
     @api showQuoteSection;
     @api showQuoteLineSection;
     @api showTermSection;

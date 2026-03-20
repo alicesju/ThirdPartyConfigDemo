@@ -426,6 +426,18 @@
                             <elementReference>S01_DataManager.salesTransactionItems</elementReference>
                         </value>
                     </inputParameters>
+                    <inputParameters>
+                        <name>showQuoteSection</name>
+                        <value>
+                            <booleanValue>false</booleanValue>
+                        </value>
+                    </inputParameters>
+                    <inputParameters>
+                        <name>showTermSection</name>
+                        <value>
+                            <booleanValue>false</booleanValue>
+                        </value>
+                    </inputParameters>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <storeOutputAutomatically>true</storeOutputAutomatically>
