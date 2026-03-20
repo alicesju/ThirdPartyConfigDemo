@@ -36,6 +36,24 @@
                     label="Sales Transaction Items"
                     description="A collection of Apex ProductConfig__SalesTransactionItem records that contain sales transaction item details."
                     role="inputOnly" />
+            <property
+                    name="showQuoteSection"
+                    type="Boolean"
+                    default="true"
+                    label="Show Quote section"
+                    description="When true, displays the Update Quote Fields section." />
+            <property
+                    name="showQuoteLineSection"
+                    type="Boolean"
+                    default="true"
+                    label="Show Quote Line section"
+                    description="When true, displays the Update Quote Line Item Fields section." />
+            <property
+                    name="showTermSection"
+                    type="Boolean"
+                    default="true"
+                    label="Show Term section"
+                    description="When true, displays the Update Terms section." />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

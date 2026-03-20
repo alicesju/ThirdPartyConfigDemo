@@ -1,38 +1,112 @@
 <template>
-    <p class="slds-text-heading_small slds-m-bottom_small"><strong>Update Quote Line Item Fields</strong></p>
-    <div class="slds-grid slds-gutters">
-        <div class="slds-col slds-size_1-of-2">
-            <lightning-input
-                type="text"
-                label="Special Note"
-                name="input1"
-                value={input1Value}
-                onchange={handleInput1Change}
-            ></lightning-input>
-            <template lwc:if={showInput1SaveCancel}>
-                <div class="slds-m-top_small">
-                    <lightning-button
-                        label="Save"
-                        variant="brand"
-                        onclick={handleInput1Save}
-                        class="slds-m-right_x-small"
-                    ></lightning-button>
-                    <lightning-button
-                        label="Cancel"
-                        variant="neutral"
-                        onclick={handleInput1Cancel}
-                    ></lightning-button>
-                </div>
-            </template>
+    <article class="slds-card">
+        <div class="slds-card__body slds-card__body_inner">
+        
+        <!-- Section 1: Update Quote Fields -->
+        <template lwc:if={isQuoteSectionVisible}>
+        <p class="slds-text-heading_small slds-m-bottom_small"><strong>Update Quote Fields</strong></p>
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="checkbox"
+                    label="Ready for Review"
+                    name="readyForReview"
+                    checked={readyForReviewValue}
+                    onchange={handleReadyForReviewChange}
+                ></lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Fulfilled by"
+                    name="fulfilledBy"
+                    value={fulfilledByValue}
+                    options={fulfilledByOptions}
+                    onchange={handleFulfilledByChange}
+                ></lightning-combobox>
+                <template lwc:if={showQuoteFieldsSave}>
+                    <div class="slds-m-top_small">
+                        <lightning-button
+                            label="Save"
+                            variant="brand"
+                            onclick={handleQuoteFieldsSave}
+                        ></lightning-button>
+                    </div>
+                </template>
+            </div>
         </div>
-        <div class="slds-col slds-size_1-of-2">
-            <lightning-input
-                type="toggle"
-                label="Apply Contingency"
-                name="input2"
-                checked={input2Value}
-                onchange={handleInput2Change}
-            ></lightning-input>
+        </template>
+
+        <!-- Section 2: Update Quote Line Item Fields -->
+        <template lwc:if={isQuoteLineSectionVisible}>
+        <p class="slds-text-heading_small slds-m-bottom_small slds-m-top_medium"><strong>Update Quote Line Item Fields</strong></p>
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="text"
+                    label="Special Note"
+                    name="input1"
+                    value={input1Value}
+                    onchange={handleInput1Change}
+                ></lightning-input>
+                <template lwc:if={showInput1SaveCancel}>
+                    <div class="slds-m-top_small">
+                        <lightning-button
+                            label="Save"
+                            variant="brand"
+                            onclick={handleInput1Save}
+                            class="slds-m-right_x-small"
+                        ></lightning-button>
+                        <lightning-button
+                            label="Cancel"
+                            variant="neutral"
+                            onclick={handleInput1Cancel}
+                        ></lightning-button>
+                    </div>
+                </template>
+            </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="toggle"
+                    label="Apply Contingency"
+                    name="input2"
+                    checked={input2Value}
+                    onchange={handleInput2Change}
+                ></lightning-input>
+            </div>
         </div>
-    </div>
+        </template>
+
+        <!-- Section 3: Update Terms -->
+        <template lwc:if={isTermSectionVisible}>
+        <p class="slds-text-heading_small slds-m-bottom_small slds-m-top_medium"><strong>Update Terms</strong></p>
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-slider
+                    label="Term (year)"
+                    name="term"
+                    min="1"
+                    max="5"
+                    value={termValue}
+                    onchange={handleTermChange}
+                ></lightning-slider>
+                <template lwc:if={showTermSaveCancel}>
+                    <div class="slds-m-top_small">
+                        <lightning-button
+                            label="Save"
+                            variant="brand"
+                            onclick={handleTermSave}
+                            class="slds-m-right_x-small"
+                        ></lightning-button>
+                        <lightning-button
+                            label="Cancel"
+                            variant="neutral"
+                            onclick={handleTermCancel}
+                        ></lightning-button>
+                    </div>
+                </template>
+            </div>
+        </div>
+        </template>
+        </div>
+    </article>
 </template>
