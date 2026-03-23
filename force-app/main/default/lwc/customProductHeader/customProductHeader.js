@@ -20,10 +20,10 @@ const LMS_EVENTS = Object.freeze({
 
 const STATE_FIELDS = Object.freeze({
 //standard fields in the context definition
-    TERM: "SubscriptionTerm"
+    TERM: "SubscriptionTerm",
 //custom fields in the context definition
     SPECIALNOTE: "SpecialNote__c",
-    APPLYCONTINGENCY: "ApplyContingency__c",
+    APPLYCONTINGENCY: "ApplyContingency__c"
 });
 
 export default class MyComponent extends LightningElement {
@@ -31,7 +31,7 @@ export default class MyComponent extends LightningElement {
     input2Value = false;
     termValue;
     showTermSaveCancel = false;
-    _termOriginalValue = 1;
+    _termOriginalValue;
 
     //input from the flow
     @api transactionLineId;
@@ -75,11 +75,9 @@ export default class MyComponent extends LightningElement {
             this._transactionLineIdOverride = message.key[1];
             this.input1Value = '';
             this.input2Value = false;
-            this.termValue = 1;
             this._input1UserModified = false;
             this._input1OriginalValue = '';
             this.showInput1SaveCancel = false;
-            this._termOriginalValue = 1;
             this.showTermSaveCancel = false;
         }
     }
