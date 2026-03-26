@@ -73,6 +73,137 @@
                         ></lightning-input>
                     </div>
                 </div>
+                <div class="slds-grid slds-gutters slds-m-top_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input
+                            type="number"
+                            formatter="percent-fixed"
+                            step="0.01"
+                            label="Target Margin"
+                            name="targetMargin"
+                            value={targetMarginValue}
+                            onchange={handleTargetMarginChange}
+                        ></lightning-input>
+                        <template lwc:if={showTargetMarginSaveCancel}>
+                            <div class="slds-m-top_small">
+                                <lightning-button
+                                    label="Save"
+                                    variant="brand"
+                                    onclick={handleTargetMarginSave}
+                                    class="slds-m-right_x-small"
+                                ></lightning-button>
+                                <lightning-button
+                                    label="Cancel"
+                                    variant="neutral"
+                                    onclick={handleTargetMarginCancel}
+                                ></lightning-button>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input
+                            type="number"
+                            formatter="currency"
+                            step="0.01"
+                            label="Target Price"
+                            name="targetPrice"
+                            value={targetPriceValue}
+                            onchange={handleTargetPriceChange}
+                        ></lightning-input>
+                        <template lwc:if={showTargetPriceSaveCancel}>
+                            <div class="slds-m-top_small">
+                                <lightning-button
+                                    label="Save"
+                                    variant="brand"
+                                    onclick={handleTargetPriceSave}
+                                    class="slds-m-right_x-small"
+                                ></lightning-button>
+                                <lightning-button
+                                    label="Cancel"
+                                    variant="neutral"
+                                    onclick={handleTargetPriceCancel}
+                                ></lightning-button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-grid slds-gutters slds-m-top_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input
+                            type="date"
+                            label="Estimated Delivery Date"
+                            name="estDeliveryDate"
+                            value={estDeliveryDateValue}
+                            onchange={handleEstDeliveryDateChange}
+                        ></lightning-input>
+                        <template lwc:if={showEstDeliveryDateSaveCancel}>
+                            <div class="slds-m-top_small">
+                                <lightning-button
+                                    label="Save"
+                                    variant="brand"
+                                    onclick={handleEstDeliveryDateSave}
+                                    class="slds-m-right_x-small"
+                                ></lightning-button>
+                                <lightning-button
+                                    label="Cancel"
+                                    variant="neutral"
+                                    onclick={handleEstDeliveryDateCancel}
+                                ></lightning-button>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input
+                            type="number"
+                            step="1"
+                            label="Hierarchy Level"
+                            name="hierarchyLevel"
+                            value={hierarchyLevelValue}
+                            onchange={handleHierarchyLevelChange}
+                        ></lightning-input>
+                        <template lwc:if={showHierarchyLevelSaveCancel}>
+                            <div class="slds-m-top_small">
+                                <lightning-button
+                                    label="Save"
+                                    variant="brand"
+                                    onclick={handleHierarchyLevelSave}
+                                    class="slds-m-right_x-small"
+                                ></lightning-button>
+                                <lightning-button
+                                    label="Cancel"
+                                    variant="neutral"
+                                    onclick={handleHierarchyLevelCancel}
+                                ></lightning-button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-grid slds-gutters slds-m-top_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-combobox
+                            label="Preferred Delivery Hour"
+                            name="prefDeliveryHour"
+                            value={prefDeliveryHourValue}
+                            options={prefDeliveryHourOptions}
+                            onchange={handlePrefDeliveryHourChange}
+                        ></lightning-combobox>
+                        <template lwc:if={showPrefDeliveryHourSaveCancel}>
+                            <div class="slds-m-top_small">
+                                <lightning-button
+                                    label="Save"
+                                    variant="brand"
+                                    onclick={handlePrefDeliveryHourSave}
+                                    class="slds-m-right_x-small"
+                                ></lightning-button>
+                                <lightning-button
+                                    label="Cancel"
+                                    variant="neutral"
+                                    onclick={handlePrefDeliveryHourCancel}
+                                ></lightning-button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
             </lightning-accordion-section>
         </template>
 

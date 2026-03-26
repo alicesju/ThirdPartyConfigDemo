@@ -4,6 +4,27 @@ import {MessageContext, publish, subscribe} from 'lightning/messageService';
 // subscribe from the configuration channel
 import CONFIGR_CHANNEL from "@salesforce/messageChannel/lightning__productConfigurator_notification";
 
+import {getRecord, getFieldValue} from 'lightning/uiRecordApi';
+import SPECIAL_NOTES_FIELD from '@salesforce/schema/QuoteLineItem.Special_Notes__c';
+import APPLY_CONTINGENCY_FIELD from '@salesforce/schema/QuoteLineItem.Apply_Contingency__c';
+import SUBSCRIPTION_TERM_FIELD from '@salesforce/schema/QuoteLineItem.SubscriptionTerm';
+import TARGET_MARGIN_FIELD from '@salesforce/schema/QuoteLineItem.Target_Margin__c';
+import TARGET_PRICE_FIELD from '@salesforce/schema/QuoteLineItem.Target_Price__c';
+import ESTIMATED_DELIVERY_DATE_FIELD from '@salesforce/schema/QuoteLineItem.Estimated_Delivery_Date__c';
+import HIERARCHY_LEVEL_FIELD from '@salesforce/schema/QuoteLineItem.Hierarchy_Level__c';
+import PREFERRED_DELIVERY_HOUR_FIELD from '@salesforce/schema/QuoteLineItem.Preferred_Delivery_Hour__c';
+
+const QLI_FIELDS = [
+    SPECIAL_NOTES_FIELD,
+    APPLY_CONTINGENCY_FIELD,
+    SUBSCRIPTION_TERM_FIELD,
+    TARGET_MARGIN_FIELD,
+    TARGET_PRICE_FIELD,
+    ESTIMATED_DELIVERY_DATE_FIELD,
+    HIERARCHY_LEVEL_FIELD,
+    PREFERRED_DELIVERY_HOUR_FIELD
+];
+
 const LMS_EVENTS = Object.freeze({
     //events used in this example
     VALUE_CHANGE: "valueChanged",
@@ -19,11 +40,14 @@ const LMS_EVENTS = Object.freeze({
 });
 
 const STATE_FIELDS = Object.freeze({
-//standard fields in the context definition
     TERM: "SubscriptionTerm",
-//custom fields in the context definition
     SPECIALNOTE: "SpecialNote__c",
-    APPLYCONTINGENCY: "ApplyContingency__c"
+    APPLYCONTINGENCY: "ApplyContingency__c",
+    TARGET_MARGIN: "Target_Margin__c",
+    TARGET_PRICE: "Target_Price__c",
+    ESTIMATED_DELIVERY_DATE: "Estimated_Delivery_Date__c",
+    HIERARCHY_LEVEL: "Hierarchy_Level__c",
+    PREFERRED_DELIVERY_HOUR: "PreferredDeliveryHour__c"
 });
 
 export default class MyComponent extends LightningElement {
@@ -49,12 +73,66 @@ export default class MyComponent extends LightningElement {
     _input1OriginalValue = '';
     showInput1SaveCancel = false;
     _transactionLineIdOverride = '';
+    _quoteLineRecordId = '';
+
+    targetMarginValue = null;
+    showTargetMarginSaveCancel = false;
+    _targetMarginOriginalValue = null;
+
+    targetPriceValue = null;
+    showTargetPriceSaveCancel = false;
+    _targetPriceOriginalValue = null;
+
+    estDeliveryDateValue = '';
+    showEstDeliveryDateSaveCancel = false;
+    _estDeliveryDateOriginalValue = '';
+
+    hierarchyLevelValue = null;
+    showHierarchyLevelSaveCancel = false;
+    _hierarchyLevelOriginalValue = null;
+
+    prefDeliveryHourValue = '';
+    showPrefDeliveryHourSaveCancel = false;
+    _prefDeliveryHourOriginalValue = '';
+
+    get prefDeliveryHourOptions() {
+        return [
+            { label: 'None', value: '' },
+            { label: 'AM', value: 'AM' },
+            { label: 'PM', value: 'PM' }
+        ];
+    }
+
+    @wire(getRecord, { recordId: '$_quoteLineRecordId', fields: QLI_FIELDS })
+    wiredQuoteLineItem({ data, error }) {
+        if (data) {
+            this.input1Value = getFieldValue(data, SPECIAL_NOTES_FIELD) ?? '';
+            this.input2Value = getFieldValue(data, APPLY_CONTINGENCY_FIELD) ?? false;
+            this.termValue = getFieldValue(data, SUBSCRIPTION_TERM_FIELD);
+            this.targetMarginValue = getFieldValue(data, TARGET_MARGIN_FIELD);
+            this.targetPriceValue = getFieldValue(data, TARGET_PRICE_FIELD);
+            this.estDeliveryDateValue = getFieldValue(data, ESTIMATED_DELIVERY_DATE_FIELD) ?? '';
+            this.hierarchyLevelValue = getFieldValue(data, HIERARCHY_LEVEL_FIELD);
+            this.prefDeliveryHourValue = getFieldValue(data, PREFERRED_DELIVERY_HOUR_FIELD) ?? '';
+            this._input1OriginalValue = this.input1Value;
+            this._termOriginalValue = this.termValue;
+            this._targetMarginOriginalValue = this.targetMarginValue;
+            this._targetPriceOriginalValue = this.targetPriceValue;
+            this._estDeliveryDateOriginalValue = this.estDeliveryDateValue;
+            this._hierarchyLevelOriginalValue = this.hierarchyLevelValue;
+            this._prefDeliveryHourOriginalValue = this.prefDeliveryHourValue;
+            console.log('[customProductHeader] wiredQuoteLineItem data:', JSON.stringify(data, null, 2));
+        } else if (error) {
+            console.error('[customProductHeader] wiredQuoteLineItem error:', JSON.stringify(error));
+        }
+    }
 
     
 
     // Lifecycle hook that subscribes to the message channel when the component is initialized
     connectedCallback() {
        this.subscribeToMessageChannel();
+       this._quoteLineRecordId = this.transactionLineIdForPublish;
     }
 
 
@@ -79,6 +157,18 @@ export default class MyComponent extends LightningElement {
             this._input1OriginalValue = '';
             this.showInput1SaveCancel = false;
             this.showTermSaveCancel = false;
+            this.targetMarginValue = null;
+            this.showTargetMarginSaveCancel = false;
+            this.targetPriceValue = null;
+            this.showTargetPriceSaveCancel = false;
+            this.estDeliveryDateValue = '';
+            this.showEstDeliveryDateSaveCancel = false;
+            this.hierarchyLevelValue = null;
+            this.showHierarchyLevelSaveCancel = false;
+            this.prefDeliveryHourValue = '';
+            this.showPrefDeliveryHourSaveCancel = false;
+            // Re-trigger wire fetch for the newly navigated-to line item
+            this._quoteLineRecordId = this.transactionLineIdForPublish;
         }
     }
 /**
@@ -138,6 +228,101 @@ get transactionLineIdForPublish() {
         this.input1Value = this._input1OriginalValue;
         this.showInput1SaveCancel = false;
         this._input1UserModified = false;
+    }
+
+    handleTargetMarginChange(event) {
+        if (!this.showTargetMarginSaveCancel) {
+            this._targetMarginOriginalValue = this.targetMarginValue;
+        }
+        this.targetMarginValue = event.target.value;
+        this.showTargetMarginSaveCancel = true;
+    }
+
+    handleTargetMarginSave() {
+        this.sendQuoteLineFieldToDataManager(STATE_FIELDS.TARGET_MARGIN, this.targetMarginValue);
+        this._targetMarginOriginalValue = this.targetMarginValue;
+        this.showTargetMarginSaveCancel = false;
+    }
+
+    handleTargetMarginCancel() {
+        this.targetMarginValue = this._targetMarginOriginalValue;
+        this.showTargetMarginSaveCancel = false;
+    }
+
+    handleTargetPriceChange(event) {
+        if (!this.showTargetPriceSaveCancel) {
+            this._targetPriceOriginalValue = this.targetPriceValue;
+        }
+        this.targetPriceValue = event.target.value;
+        this.showTargetPriceSaveCancel = true;
+    }
+
+    handleTargetPriceSave() {
+        this.sendQuoteLineFieldToDataManager(STATE_FIELDS.TARGET_PRICE, this.targetPriceValue);
+        this._targetPriceOriginalValue = this.targetPriceValue;
+        this.showTargetPriceSaveCancel = false;
+    }
+
+    handleTargetPriceCancel() {
+        this.targetPriceValue = this._targetPriceOriginalValue;
+        this.showTargetPriceSaveCancel = false;
+    }
+
+    handleEstDeliveryDateChange(event) {
+        if (!this.showEstDeliveryDateSaveCancel) {
+            this._estDeliveryDateOriginalValue = this.estDeliveryDateValue;
+        }
+        this.estDeliveryDateValue = event.target.value;
+        this.showEstDeliveryDateSaveCancel = true;
+    }
+
+    handleEstDeliveryDateSave() {
+        this.sendQuoteLineFieldToDataManager(STATE_FIELDS.ESTIMATED_DELIVERY_DATE, this.estDeliveryDateValue);
+        this._estDeliveryDateOriginalValue = this.estDeliveryDateValue;
+        this.showEstDeliveryDateSaveCancel = false;
+    }
+
+    handleEstDeliveryDateCancel() {
+        this.estDeliveryDateValue = this._estDeliveryDateOriginalValue;
+        this.showEstDeliveryDateSaveCancel = false;
+    }
+
+    handleHierarchyLevelChange(event) {
+        if (!this.showHierarchyLevelSaveCancel) {
+            this._hierarchyLevelOriginalValue = this.hierarchyLevelValue;
+        }
+        this.hierarchyLevelValue = event.target.value;
+        this.showHierarchyLevelSaveCancel = true;
+    }
+
+    handleHierarchyLevelSave() {
+        this.sendQuoteLineFieldToDataManager(STATE_FIELDS.HIERARCHY_LEVEL, this.hierarchyLevelValue);
+        this._hierarchyLevelOriginalValue = this.hierarchyLevelValue;
+        this.showHierarchyLevelSaveCancel = false;
+    }
+
+    handleHierarchyLevelCancel() {
+        this.hierarchyLevelValue = this._hierarchyLevelOriginalValue;
+        this.showHierarchyLevelSaveCancel = false;
+    }
+
+    handlePrefDeliveryHourChange(event) {
+        if (!this.showPrefDeliveryHourSaveCancel) {
+            this._prefDeliveryHourOriginalValue = this.prefDeliveryHourValue;
+        }
+        this.prefDeliveryHourValue = event.detail.value;
+        this.showPrefDeliveryHourSaveCancel = true;
+    }
+
+    handlePrefDeliveryHourSave() {
+        this.sendQuoteLineFieldToDataManager(STATE_FIELDS.PREFERRED_DELIVERY_HOUR, this.prefDeliveryHourValue);
+        this._prefDeliveryHourOriginalValue = this.prefDeliveryHourValue;
+        this.showPrefDeliveryHourSaveCancel = false;
+    }
+
+    handlePrefDeliveryHourCancel() {
+        this.prefDeliveryHourValue = this._prefDeliveryHourOriginalValue;
+        this.showPrefDeliveryHourSaveCancel = false;
     }
 
     handleInput2Change(event) {

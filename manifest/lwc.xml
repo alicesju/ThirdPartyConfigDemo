@@ -7,7 +7,16 @@
     <types>
         <members>QuoteLineItem.Special_Notes__c</members>
         <members>QuoteLineItem.Apply_Contingency__c</members>
+        <members>QuoteLineItem.Target_Margin__c</members>
+        <members>QuoteLineItem.Target_Price__c</members>
+        <members>QuoteLineItem.Estimated_Delivery_Date__c</members>
+        <members>QuoteLineItem.Hierarchy_Level__c</members>
+        <members>QuoteLineItem.Preferred_Delivery_Hour__c</members>
         <name>CustomField</name>
+    </types>
+    <types>
+        <members>Admin</members>
+        <name>Profile</name>
     </types>
     <types>
         <members>RCA_Custom_Configuration_Flow</members>
