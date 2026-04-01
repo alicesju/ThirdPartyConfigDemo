@@ -41,13 +41,13 @@ const LMS_EVENTS = Object.freeze({
 
 const STATE_FIELDS = Object.freeze({
     TERM: "SubscriptionTerm",
-    SPECIALNOTE: "SpecialNote__c",
-    APPLYCONTINGENCY: "ApplyContingency__c",
+    SPECIALNOTE: "Special_Note__c",
+    APPLYCONTINGENCY: "Apply_Contingency__c",
     TARGET_MARGIN: "Target_Margin__c",
     TARGET_PRICE: "Target_Price__c",
     ESTIMATED_DELIVERY_DATE: "Estimated_Delivery_Date__c",
     HIERARCHY_LEVEL: "Hierarchy_Level__c",
-    PREFERRED_DELIVERY_HOUR: "PreferredDeliveryHour__c"
+    PREFERRED_DELIVERY_HOUR: "Preferred_Delivery_Hour__c"
 });
 
 export default class MyComponent extends LightningElement {
