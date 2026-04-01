@@ -62,7 +62,6 @@ export default class MyComponent extends LightningElement {
     @api currentTransactionLineId;
     @api salesTransactionItems;
     //dynamically show and hide different sections from the flow
-    @api showQuoteSection;
     @api showQuoteLineSection;
     @api showTermSection;
     @wire(MessageContext)
@@ -196,10 +195,6 @@ get transactionLineIdForPublish() {
     }
     return '';
 }
-
-    get isQuoteSectionVisible() {
-        return this.showQuoteSection !== false;
-    }
 
     get isQuoteLineSectionVisible() {
         return this.showQuoteLineSection !== false;

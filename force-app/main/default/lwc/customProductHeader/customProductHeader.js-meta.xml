@@ -8,9 +8,8 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>60.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>My Third Party Configurator Component</masterLabel>
-    <description>My custom component that I will use in the 
-        Configurator UI</description>
+    <masterLabel>Custom UI Component</masterLabel>
+    <description>Custom UI component that allows you to update custom fields on the quote line item.</description>
     <targets>
         <target>lightning__FlowScreen</target>
     </targets>
@@ -36,12 +35,6 @@
                     label="Sales Transaction Items"
                     description="A collection of Apex ProductConfig__SalesTransactionItem records that contain sales transaction item details."
                     role="inputOnly" />
-            <property
-                    name="showQuoteSection"
-                    type="Boolean"
-                    default="true"
-                    label="Show Quote section"
-                    description="When true, displays the Update Quote Fields section." />
             <property
                     name="showQuoteLineSection"
                     type="Boolean"

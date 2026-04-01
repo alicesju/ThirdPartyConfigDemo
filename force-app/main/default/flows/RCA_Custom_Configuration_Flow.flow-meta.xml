@@ -405,37 +405,19 @@
                     </styleProperties>
                 </fields>
                 <fields>
-                    <name>CustomConfigHeader</name>
+                    <name>customComponentHeader</name>
                     <extensionName>c:customProductHeader</extensionName>
                     <fieldType>ComponentInstance</fieldType>
                     <inputParameters>
-                        <name>currentTransactionLineId</name>
-                        <value>
-                            <elementReference>S01_DataManager.transactionRecord.parentId</elementReference>
-                        </value>
-                    </inputParameters>
-                    <inputParameters>
                         <name>transactionLineId</name>
                         <value>
-                            <elementReference>S01_DataManager.transactionRecord.parentId</elementReference>
+                            <stringValue>configuratorContext.currentTransactionLineId</stringValue>
                         </value>
                     </inputParameters>
                     <inputParameters>
-                        <name>salesTransactionItems</name>
+                        <name>currentTransactionLineId</name>
                         <value>
-                            <elementReference>S01_DataManager.salesTransactionItems</elementReference>
-                        </value>
-                    </inputParameters>
-                    <inputParameters>
-                        <name>showQuoteSection</name>
-                        <value>
-                            <booleanValue>false</booleanValue>
-                        </value>
-                    </inputParameters>
-                    <inputParameters>
-                        <name>showTermSection</name>
-                        <value>
-                            <booleanValue>false</booleanValue>
+                            <stringValue>configuratorContext.transactionLineId</stringValue>
                         </value>
                     </inputParameters>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
@@ -813,7 +795,7 @@
             <targetReference>S01_ProductConfiguratorUI</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <name>configuratorContext</name>
         <apexClass>ProductConfig__ConfiguratorContext</apexClass>

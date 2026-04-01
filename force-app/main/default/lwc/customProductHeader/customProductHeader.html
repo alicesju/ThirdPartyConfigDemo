@@ -1,40 +1,5 @@
 <template>
     <lightning-accordion allow-multiple-sections-open>
-        <!-- Section 1: Update Quote Fields -->
-        <template lwc:if={isQuoteSectionVisible}>
-            <lightning-accordion-section name="quote" label="Update Quote Fields">
-                <div class="slds-grid slds-gutters">
-                    <div class="slds-col slds-size_1-of-2">
-                        <lightning-input
-                            type="checkbox"
-                            label="Ready for Review"
-                            name="readyForReview"
-                            checked={readyForReviewValue}
-                            onchange={handleReadyForReviewChange}
-                        ></lightning-input>
-                    </div>
-                    <div class="slds-col slds-size_1-of-2">
-                        <lightning-combobox
-                            label="Fulfilled by"
-                            name="fulfilledBy"
-                            value={fulfilledByValue}
-                            options={fulfilledByOptions}
-                            onchange={handleFulfilledByChange}
-                        ></lightning-combobox>
-                        <template lwc:if={showQuoteFieldsSave}>
-                            <div class="slds-m-top_small">
-                                <lightning-button
-                                    label="Save"
-                                    variant="brand"
-                                    onclick={handleQuoteFieldsSave}
-                                ></lightning-button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </lightning-accordion-section>
-        </template>
-
         <!-- Section 2: Update Quote Line Item Fields -->
         <template lwc:if={isQuoteLineSectionVisible}>
             <lightning-accordion-section name="quoteLine" label="Update Quote Line Item Fields">
