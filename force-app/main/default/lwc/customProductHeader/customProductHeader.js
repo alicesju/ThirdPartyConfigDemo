@@ -102,6 +102,15 @@ export default class MyComponent extends LightningElement {
         ];
     }
 
+    // ─── NOT WORKING — FOR REFERENCE ONLY ────────────────────────────────────
+    // The intent of this wire is to fetch the current QuoteLineItem field values
+    // from Salesforce and populate the inputs as initial values when the component
+    // first loads and whenever the user navigates to a different line item.
+    //
+    // This wiring is NOT currently functional. Inputs will always start empty.
+    // Before using in a production project, this block must be validated and fixed
+    // so the component reflects the saved state of the record on load.
+    // ─────────────────────────────────────────────────────────────────────────
     @wire(getRecord, { recordId: '$_quoteLineRecordId', fields: QLI_FIELDS })
     wiredQuoteLineItem({ data, error }) {
         if (data) {

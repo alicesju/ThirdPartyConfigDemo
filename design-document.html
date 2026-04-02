@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Design Document — RCA Custom Configurator Component</title>
+<style>
+  /* ── Reset & base ─────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    color: #1a1a2e;
+    background: #f5f7fa;
+    line-height: 1.6;
+  }
+
+  /* ── Page shell ───────────────────────────────── */
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    box-shadow: 0 2px 16px rgba(0,0,0,.1);
+  }
+
+  /* ── Cover ────────────────────────────────────── */
+  .cover {
+    background: linear-gradient(135deg, #032d60 0%, #0070d2 60%, #1589ee 100%);
+    color: #fff;
+    padding: 64px 56px 48px;
+  }
+  .cover-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: .75;
+    margin-bottom: 12px;
+  }
+  .cover h1 {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .cover-sub {
+    font-size: 16px;
+    opacity: .85;
+    margin-bottom: 32px;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    font-size: 13px;
+    opacity: .8;
+    flex-wrap: wrap;
+  }
+  .cover-meta span::before { content: "● "; }
+
+  /* ── TOC ──────────────────────────────────────── */
+  .toc {
+    background: #f0f4ff;
+    border-left: 4px solid #0070d2;
+    padding: 28px 36px;
+  }
+  .toc h2 { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: #0070d2; margin-bottom: 14px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 6px 0; }
+  .toc a { color: #032d60; text-decoration: none; font-weight: 500; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── Section ──────────────────────────────────── */
+  .section { padding: 48px 56px; border-bottom: 1px solid #e8edf2; }
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #0070d2;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .section h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #032d60;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e8edf2;
+  }
+  .section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #032d60;
+    margin: 28px 0 10px;
+  }
+  .section h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 18px 0 8px;
+  }
+  p { margin-bottom: 12px; color: #3a3a52; }
+
+  /* ── Cards grid ───────────────────────────────── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .card {
+    border: 1px solid #dce3ed;
+    border-radius: 8px;
+    padding: 20px;
+    background: #fafcff;
+  }
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .card-icon.blue  { background: #daeeff; }
+  .card-icon.green { background: #d4f5e2; }
+  .card-icon.orange{ background: #fde8d0; }
+  .card-icon.purple{ background: #ede5ff; }
+  .card h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #032d60; }
+  .card p  { font-size: 12px; color: #5a5a72; margin: 0; }
+
+  /* ── Tables ───────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 13px;
+  }
+  th {
+    background: #032d60;
+    color: #fff;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: .4px;
+  }
+  td { padding: 9px 14px; border-bottom: 1px solid #e8edf2; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8faff; }
+  tr:last-child td { border-bottom: none; }
+  code {
+    background: #eef2ff;
+    color: #032d60;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 12px;
+  }
+
+  /* ── Code blocks ──────────────────────────────── */
+  pre {
+    background: #032d60;
+    color: #a8d8ff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+  }
+  pre .kw  { color: #ffca28; }
+  pre .str { color: #a5d6a7; }
+  pre .cm  { color: #78909c; font-style: italic; }
+  pre .key { color: #80cbc4; }
+
+  /* ── Badges ───────────────────────────────────── */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .badge-blue   { background: #daeeff; color: #032d60; }
+  .badge-green  { background: #d4f5e2; color: #0a5c36; }
+  .badge-orange { background: #fde8d0; color: #7a3800; }
+  .badge-gray   { background: #e8edf2; color: #3a3a52; }
+
+  /* ── Callout ──────────────────────────────────── */
+  .callout {
+    border-left: 4px solid #0070d2;
+    background: #f0f8ff;
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+    font-size: 13px;
+    color: #032d60;
+  }
+  .callout.warn  { border-color: #ff9800; background: #fff8e1; color: #5a3000; }
+  .callout.success { border-color: #4caf50; background: #f1f8f1; color: #1a4a1a; }
+
+  /* ── Steps ────────────────────────────────────── */
+  .steps { counter-reset: step; list-style: none; padding: 0; }
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  .steps li::before {
+    content: counter(step);
+    min-width: 30px;
+    height: 30px;
+    background: #0070d2;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .steps li .step-content h4 { margin-top: 0; }
+
+  /* ─────────────────────────────────────────────── */
+  /*  DATA FLOW DIAGRAM                              */
+  /* ─────────────────────────────────────────────── */
+  .diagram-wrap {
+    background: #f0f4ff;
+    border-radius: 12px;
+    padding: 32px 24px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram {
+    min-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  /* Row of boxes */
+  .d-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    justify-content: center;
+  }
+
+  /* Individual box */
+  .d-box {
+    border-radius: 10px;
+    padding: 16px 18px;
+    min-width: 160px;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .d-box .d-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .d-box .d-name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .d-box .d-sub {
+    font-size: 11px;
+    margin-top: 4px;
+    opacity: .75;
+  }
+
+  /* Box colours */
+  .d-salesforce { background: #032d60; color: #fff; }
+  .d-flow       { background: #0070d2; color: #fff; }
+  .d-lwc        { background: #1589ee; color: #fff; }
+  .d-lms        { background: #ff6b35; color: #fff; }
+  .d-api        { background: #7b5ea7; color: #fff; }
+  .d-db         { background: #00897b; color: #fff; }
+
+  /* Arrows between boxes */
+  .d-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+  .d-arrow svg { display: block; }
+
+  /* Vertical arrow block */
+  .d-v-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 0;
+    position: relative;
+  }
+  .d-v-arrow .d-v-label {
+    background: #fff;
+    border: 1px solid #c8d6e8;
+    border-radius: 4px;
+    font-size: 10.5px;
+    color: #3a3a52;
+    padding: 3px 10px;
+    margin: 2px 0;
+    white-space: nowrap;
+    max-width: 340px;
+    text-align: center;
+  }
+
+  /* Sub-diagram for LWC internals */
+  .d-lwc-inner {
+    border: 2px dashed #1589ee;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 320px;
+    background: rgba(21,137,238,.06);
+  }
+  .d-lwc-inner .d-inner-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #1589ee;
+    margin-bottom: 6px;
+  }
+  .d-inner-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .d-inner-box {
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .d-ib-blue   { background: #daeeff; color: #032d60; border: 1px solid #a8d4f5; }
+  .d-ib-orange { background: #fde8d0; color: #7a3800; border: 1px solid #f5c08a; }
+  .d-ib-green  { background: #d4f5e2; color: #0a5c36; border: 1px solid #80cfaa; }
+
+  .d-wide { min-width: 220px; }
+
+  /* File tree ───────────────────────────────────── */
+  .file-tree {
+    background: #032d60;
+    color: #cfe2f3;
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: "Consolas", monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    margin: 16px 0;
+  }
+  .file-tree .dir  { color: #80cbc4; font-weight: 700; }
+  .file-tree .file { color: #cfe2f3; }
+  .file-tree .note { color: #78909c; font-style: italic; }
+
+  /* Footer ──────────────────────────────────────── */
+  .footer {
+    background: #032d60;
+    color: rgba(255,255,255,.55);
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ═══════════════ COVER ══════════════════════════ -->
+<div class="cover">
+  <div class="cover-label">Technical Design Document</div>
+  <h1>RCA Custom Configurator<br>Component</h1>
+  <div class="cover-sub">Salesforce Revenue Cloud Advanced — Product Configurator Extension</div>
+  <div class="cover-meta">
+    <span>Project: ThirdPartyConfig</span>
+    <span>API Version: 66.0</span>
+    <span>Last Updated: March 2026</span>
+    <span>Target: lightning__FlowScreen</span>
+  </div>
+</div>
+
+<!-- ═══════════════ TOC ════════════════════════════ -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#s1">Component Overview</a></li>
+    <li><a href="#s2">Component Inventory</a></li>
+    <li><a href="#s3">Data Flow Architecture</a></li>
+    <li><a href="#s4">Custom Fields Reference</a></li>
+    <li><a href="#s5">Installation &amp; Deployment</a></li>
+    <li><a href="#s6">Context Definition Setup</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════ S1: OVERVIEW ══════════════════ -->
+<div class="section" id="s1">
+  <div class="section-label">Section 1</div>
+  <h2>Component Overview</h2>
+
+  <p>This component delivers a sample 3rd party UI <strong>Lightning Web Component (LWC)</strong> — <code>customProductHeader</code> — that can be added to the Salesforce Revenue Cloud Advanced (RCA) Product Configurator. It allows sales reps to view and edit custom Quote Line Item fields directly inside the Configurator UI, without leaving the configuration experience.</p>
+
+  <p>The benefit of introducing a 3rd party UI component is that:</p>
+  <ul style="margin: 0 0 16px 20px; color: #3a3a52;">
+    <li style="margin-bottom:6px">It allows the customer to extend the Configurator UI without fully replacing it, preserving the standard Revenue Cloud data pipeline.</li>
+    <li style="margin-bottom:6px">It helps prevent putting quote line level information into the attribute model, which would create unnecessary complexity in product design.</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>Best Practice Advisory</strong><br><br>
+    Before introducing any third-party LWC customization, the recommended approach is to work with the customer to evaluate and accept the <strong>out-of-the-box (OOTB) first-party configurator behavior</strong>. <br><br>
+    This type of third-party component should only be introduced when <strong>both</strong> of the following conditions are true:
+    <ul style="margin: 10px 0 0 20px;">
+      <li style="margin-bottom:6px">The business requirement cannot be fully met by OOTB configurator behavior, and the only customization required is a component that allows the sales rep to update a field directly on the quote line item; <strong>and</strong></li>
+      <li style="margin-bottom:6px">Modelling the requirement as a product attribute would result in bad product design — for example, forcing operational or transactional data into the attribute layer which raises the level of effort for integration or other customization.</li>
+    </ul>
+    <br>Introducing custom LWC components increases long-term maintenance cost and can be impacted by future Revenue Cloud upgrades. Always document the business justification for choosing this approach.
+  </div>
+
+  <h3>What This Component Does <em>Not</em> Do</h3>
+  <p>The following are known gaps in the current implementation. They are intentionally left out of this sample but should be addressed before using this component in a production project.</p>
+
+  <div class="callout warn" style="margin-bottom:16px">
+    <strong>1 — Quote Line Item data is not loaded as initial values (wire not functional)</strong><br><br>
+    Although the code includes a <code>@wire(getRecord, ...)</code> block that is intended to fetch the current Quote Line Item field values and populate the inputs when the component loads or when the user navigates to a different line, <strong>this wiring is not currently working</strong>. The inputs will always start empty regardless of what is saved on the record. The wire code block exists in the codebase as a reference implementation only.<br><br>
+    In a real client project, the wiring must be validated and fixed so that the component reflects the current saved state of the record when the configurator opens. Without this, a sales rep editing a field would have no visibility into the previously saved value, creating a risk of unintentional overwrites.
+  </div>
+
+  <div class="callout warn">
+    <strong>2 — No LMS publish locking / debounce guard</strong><br><br>
+    When an LMS <code>valueChanged</code> message is published to the Product Configurator Data Manager, the first-party configurator enters a brief processing state (spinner) while it applies the change. If a second LMS message is published before the first has finished processing, the Data Manager will throw an error.<br><br>
+    This component has <strong>no protection against rapid or concurrent LMS publishes</strong>. In a real client project, consider implementing one or both of the following safeguards:
+    <ul style="margin: 10px 0 0 20px;">
+      <li style="margin-bottom:6px"><strong>Locking:</strong> Set a boolean flag (e.g. <code>_isPublishing</code>) to <code>true</code> when a publish starts and disable all Save buttons until the Data Manager confirms the operation is complete (via an incoming LMS event).</li>
+      <li style="margin-bottom:6px"><strong>Debouncing:</strong> Introduce a short delay (e.g. 300–500 ms) before firing the publish, cancelling any pending publish if the user triggers another save within that window.</li>
+    </ul>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon blue">🧩</div>
+      <h4>customProductHeader LWC</h4>
+      <p>Custom UI panel hosted inside the configurator flow screen. Manages 8 editable Quote Line Item fields with Save / Cancel per field.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon orange">🔄</div>
+      <h4>RCA Custom Configuration Flow</h4>
+      <p>Screen Flow hosting the Data Manager, standard configurator UI, and the customProductHeader component on a single screen.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon purple">🗃️</div>
+      <h4>Custom Fields (×7)</h4>
+      <p>Seven custom fields on QuoteLineItem, each with Admin read/edit permissions configured in the Admin profile metadata.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ S2: INVENTORY ═════════════════ -->
+<div class="section" id="s2">
+  <div class="section-label">Section 2</div>
+  <h2>Component Inventory</h2>
+
+  <h3>Files Delivered</h3>
+  <div class="file-tree">
+    <span class="dir">force-app/main/default/</span><br>
+    &nbsp;&nbsp;<span class="dir">├── lwc/customProductHeader/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; ├── customProductHeader.html</span>&nbsp;&nbsp;&nbsp;<span class="note">← UI template (2 accordion sections)</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; ├── customProductHeader.js</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">← Component logic, LMS, wire</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; └── customProductHeader.js-meta.xml</span>&nbsp;<span class="note">← Flow target config &amp; @api properties</span><br>
+    &nbsp;&nbsp;<span class="dir">├── flows/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; └── RCA_Custom_Configuration_Flow.flow-meta.xml</span><br>
+    &nbsp;&nbsp;<span class="dir">├── objects/QuoteLineItem/fields/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; ├── Special_Notes__c.field-meta.xml</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; ├── Apply_Contingency__c.field-meta.xml</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; ├── Target_Margin__c.field-meta.xml</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; ├── Target_Price__c.field-meta.xml</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; ├── Estimated_Delivery_Date__c.field-meta.xml</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; ├── Hierarchy_Level__c.field-meta.xml</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; └── PreferredDeliveryHour__c.field-meta.xml</span><br>
+    &nbsp;&nbsp;<span class="dir">├── profiles/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">│&nbsp;&nbsp; └── Admin.profile-meta.xml</span>&nbsp;&nbsp;<span class="note">← Read + edit on all 7 custom fields</span><br>
+    &nbsp;&nbsp;<span class="dir">└── manifest/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">├── lwc.xml</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">← Full deployment package</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">├── customField.xml</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">← Fields only</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">├── apex.xml</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">← Apex class only</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">└── retrieve-sysadmin-profile.xml</span>&nbsp;<span class="note">← Profile retrieval</span>
+  </div>
+
+  <h3>LWC UI Sections</h3>
+  <table>
+    <thead><tr><th>Section</th><th>Visibility Property</th><th>Fields</th><th>Input Type</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Update Quote Line Item Fields</strong></td>
+        <td><code>showQuoteLineSection</code></td>
+        <td>Special Note</td>
+        <td>Text</td>
+      </tr>
+      <tr><td></td><td></td><td>Apply Contingency</td><td>Toggle (immediate save)</td></tr>
+      <tr><td></td><td></td><td>Target Margin</td><td>Number — percent-fixed format</td></tr>
+      <tr><td></td><td></td><td>Target Price</td><td>Number — currency format</td></tr>
+      <tr><td></td><td></td><td>Estimated Delivery Date</td><td>Date picker</td></tr>
+      <tr><td></td><td></td><td>Hierarchy Level</td><td>Number (integer)</td></tr>
+      <tr><td></td><td></td><td>Preferred Delivery Hour</td><td>Picklist (None / AM / PM)</td></tr>
+      <tr>
+        <td><strong>Update Terms</strong></td>
+        <td><code>showTermSection</code></td>
+        <td>Term (year)</td>
+        <td>Slider — 1 to 5 years</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Flow Input Properties (@api)</h3>
+  <table>
+    <thead><tr><th>Property</th><th>Type</th><th>Required</th><th>Source in Flow</th></tr></thead>
+    <tbody>
+      <tr><td><code>transactionLineId</code></td><td>String</td><td><span class="badge badge-orange">Required</span></td><td><code>configuratorContext.transactionLineId</code></td></tr>
+      <tr><td><code>currentTransactionLineId</code></td><td>String</td><td><span class="badge badge-orange">Required</span></td><td><code>configuratorContext.currentTransactionLineId</code></td></tr>
+      <tr><td><code>salesTransactionItems</code></td><td>apex://ProductConfig.SalesTransactionItem[]</td><td><span class="badge badge-gray">Optional</span></td><td><code>configuratorContext.salesTransactionItems</code></td></tr>
+      <tr><td><code>showQuoteLineSection</code></td><td>Boolean</td><td><span class="badge badge-gray">Optional</span></td><td>Literal true/false or flow variable</td></tr>
+      <tr><td><code>showTermSection</code></td><td>Boolean</td><td><span class="badge badge-gray">Optional</span></td><td>Literal true/false or flow variable</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════ S3: DATA FLOW ═════════════════ -->
+<div class="section" id="s3">
+  <div class="section-label">Section 3</div>
+  <h2>Data Flow Architecture</h2>
+
+  <p>The diagram below shows the complete lifecycle of data from the Revenue Cloud context object through the Flow, into the LWC, and back to Salesforce via the LMS channel.</p>
+
+  <!-- ── DIAGRAM ── -->
+  <div class="diagram-wrap">
+    <div class="diagram">
+
+      <!-- ROW 1: Salesforce Record Layer -->
+      <div class="d-row">
+        <div class="d-box d-salesforce d-wide">
+          <div class="d-title">Salesforce</div>
+          <div class="d-name">Quote Line Item Record</div>
+          <div class="d-sub">All 7 custom fields + SubscriptionTerm</div>
+        </div>
+      </div>
+
+      <!-- Arrow down to Flow -->
+      <div class="d-v-arrow" style="align-self:center">
+        <svg width="2" height="18"><line x1="1" y1="0" x2="1" y2="18" stroke="#94a3b8" stroke-width="2"/></svg>
+        <div class="d-v-label">⬇ configuratorContext (ProductConfig__ConfiguratorContext)</div>
+        <div class="d-v-label">transactionLineId &bull; transactionId &bull; currentTransactionLineId &bull; origin &bull; parentName</div>
+        <svg width="14" height="10"><polygon points="7,10 0,0 14,0" fill="#94a3b8"/></svg>
+      </div>
+
+      <!-- ROW 2: Flow Screen -->
+      <div class="d-row" style="gap:12px; flex-wrap:wrap; justify-content:center">
+
+        <div class="d-box d-flow" style="min-width:180px">
+          <div class="d-title">Flow Screen</div>
+          <div class="d-name">S01_ProductConfiguratorUI</div>
+          <div class="d-sub">RCA Custom Configuration Flow</div>
+        </div>
+
+        <div class="d-arrow">
+          <svg width="40" height="24" viewBox="0 0 40 24">
+            <line x1="0" y1="12" x2="28" y2="12" stroke="#94a3b8" stroke-width="2"/>
+            <polygon points="40,12 26,5 26,19" fill="#94a3b8"/>
+          </svg>
+        </div>
+
+        <div class="d-box d-flow" style="min-width:200px">
+          <div class="d-title">Data Manager Component</div>
+          <div class="d-name">runtime_industries_cfg:dataManager</div>
+          <div class="d-sub">Bridge: configurator UI ↔ Salesforce data</div>
+        </div>
+
+      </div>
+
+      <!-- Arrow down: flow → LWC input props -->
+      <div class="d-v-arrow" style="align-self:center">
+        <svg width="2" height="18"><line x1="1" y1="0" x2="1" y2="18" stroke="#94a3b8" stroke-width="2"/></svg>
+        <div class="d-v-label">⬇ @api input properties injected by Flow</div>
+        <div class="d-v-label">transactionLineId &bull; currentTransactionLineId &bull; salesTransactionItems &bull; showQuoteLineSection &bull; showTermSection</div>
+        <svg width="14" height="10"><polygon points="7,10 0,0 14,0" fill="#94a3b8"/></svg>
+      </div>
+
+      <!-- ROW 3: LWC internals -->
+      <div class="d-row">
+        <div class="d-lwc-inner">
+          <div class="d-inner-title">⚡ customProductHeader LWC</div>
+
+          <div class="d-inner-row">
+            <div class="d-inner-box d-ib-blue">
+              connectedCallback()<br>
+              <span style="font-size:10px;font-weight:400">subscribe to LMS<br>set _quoteLineRecordId</span>
+            </div>
+            <div style="font-size:18px;color:#94a3b8">→</div>
+            <div class="d-inner-box d-ib-green">
+              @wire getRecord<br>
+              <span style="font-size:10px;font-weight:400">UIRecordAPI<br>fetch all 8 QLI fields</span>
+            </div>
+            <div style="font-size:18px;color:#94a3b8">→</div>
+            <div class="d-inner-box d-ib-blue">
+              Set initial values<br>
+              <span style="font-size:10px;font-weight:400">input1Value, termValue<br>targetMarginValue…</span>
+            </div>
+          </div>
+
+          <div style="font-size:11px;color:#5a5a72;margin:10px 0 4px;text-align:center">
+            — User edits a field and clicks <strong>Save</strong> —
+          </div>
+
+          <div class="d-inner-row">
+            <div class="d-inner-box d-ib-orange">
+              handleXxxSave()<br>
+              <span style="font-size:10px;font-weight:400">collect field + value</span>
+            </div>
+            <div style="font-size:18px;color:#94a3b8">→</div>
+            <div class="d-inner-box d-ib-orange">
+              sendQuoteLineFieldToDataManager()<br>
+              <span style="font-size:10px;font-weight:400">build LMS payload</span>
+            </div>
+            <div style="font-size:18px;color:#94a3b8">→</div>
+            <div class="d-inner-box d-ib-orange">
+              publish() to LMS channel<br>
+              <span style="font-size:10px;font-weight:400">action: "valueChanged"</span>
+            </div>
+          </div>
+
+          <div style="font-size:11px;color:#5a5a72;margin:10px 0 4px;text-align:center">
+            — User navigates to a different line item —
+          </div>
+
+          <div class="d-inner-row">
+            <div class="d-inner-box d-ib-blue">
+              LMS: navigate event<br>
+              <span style="font-size:10px;font-weight:400">received from Data Manager</span>
+            </div>
+            <div style="font-size:18px;color:#94a3b8">→</div>
+            <div class="d-inner-box d-ib-blue">
+              handleMessage()<br>
+              <span style="font-size:10px;font-weight:400">reset all field values<br>update _quoteLineRecordId</span>
+            </div>
+            <div style="font-size:18px;color:#94a3b8">→</div>
+            <div class="d-inner-box d-ib-green">
+              @wire re-fires<br>
+              <span style="font-size:10px;font-weight:400">load new line item data</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two outbound arrows: LMS publish and getRecord -->
+      <div class="d-row" style="gap:48px; flex-wrap:wrap; justify-content:center">
+
+        <!-- Left branch: LMS publish -->
+        <div class="d-v-arrow">
+          <svg width="2" height="16"><line x1="1" y1="0" x2="1" y2="16" stroke="#ff6b35" stroke-width="2"/></svg>
+          <div class="d-v-label" style="border-color:#ff6b35; color:#7a3800">⬇ LMS publish — action: "valueChanged"<br>{ key: [lineId], values: [{ field, value }] }</div>
+          <svg width="14" height="10"><polygon points="7,10 0,0 14,0" fill="#ff6b35"/></svg>
+        </div>
+
+        <!-- Right branch: UIRecordAPI -->
+        <div class="d-v-arrow">
+          <svg width="2" height="16"><line x1="1" y1="0" x2="1" y2="16" stroke="#7b5ea7" stroke-width="2"/></svg>
+          <div class="d-v-label" style="border-color:#7b5ea7; color:#3a1a6a">⬇ UIRecordAPI getRecord<br>fetch QLI fields on load &amp; navigate</div>
+          <svg width="14" height="10"><polygon points="7,10 0,0 14,0" fill="#7b5ea7"/></svg>
+        </div>
+
+      </div>
+
+      <!-- ROW 4: downstream targets -->
+      <div class="d-row" style="gap:48px; flex-wrap:wrap; justify-content:center">
+
+        <div class="d-box d-lms" style="min-width:200px">
+          <div class="d-title">LMS Channel</div>
+          <div class="d-name">lightning__productConfigurator<br>_notification</div>
+          <div class="d-sub">Received by Data Manager → persists to QLI</div>
+        </div>
+
+        <div class="d-box d-api" style="min-width:200px">
+          <div class="d-title">UI API</div>
+          <div class="d-name">getRecord<br>(lightning/uiRecordApi)</div>
+          <div class="d-sub">Returns live QLI field values</div>
+        </div>
+
+      </div>
+
+      <!-- Final arrow to DB -->
+      <div class="d-v-arrow" style="align-self:center">
+        <svg width="2" height="18"><line x1="1" y1="0" x2="1" y2="18" stroke="#00897b" stroke-width="2"/></svg>
+        <div class="d-v-label" style="border-color:#00897b;color:#004d40">⬇ Data Manager persists valueChanged payload to Salesforce database</div>
+        <svg width="14" height="10"><polygon points="7,10 0,0 14,0" fill="#00897b"/></svg>
+      </div>
+
+      <!-- ROW 5: Salesforce DB -->
+      <div class="d-row">
+        <div class="d-box d-db d-wide">
+          <div class="d-title">Salesforce Database</div>
+          <div class="d-name">QuoteLineItem record updated</div>
+          <div class="d-sub">Custom field values saved via Data Manager pipeline</div>
+        </div>
+      </div>
+
+    </div><!-- /diagram -->
+  </div><!-- /diagram-wrap -->
+
+  <h3>LMS Message Payload — valueChanged</h3>
+  <p>Published by the LWC each time the user saves a field:</p>
+  <pre><span class="cm">// Example: user saves Special Note on line 0QLVW000001Cmuj4AC</span>
+{
+  <span class="key">"action"</span>: <span class="str">"valueChanged"</span>,
+  <span class="key">"data"</span>: [
+    {
+      <span class="key">"key"</span>: [<span class="str">"0QLVW000001Cmuj4AC"</span>],
+      <span class="key">"values"</span>: [
+        { <span class="key">"field"</span>: <span class="str">"Special_Notes__c"</span>, <span class="key">"value"</span>: <span class="str">"Delivery before Q3"</span> }
+      ]
+    }
+  ]
+}</pre>
+
+  <h3>transactionLineId Resolution Order</h3>
+  <p>The component resolves which line item ID to use for both LMS publish and <code>getRecord</code> in this priority order:</p>
+  <table>
+    <thead><tr><th>Priority</th><th>Source</th><th>When used</th></tr></thead>
+    <tbody>
+      <tr><td>1st</td><td><code>_transactionLineIdOverride</code></td><td>Set from an incoming <code>navigate</code> LMS message (user switches line)</td></tr>
+      <tr><td>2nd</td><td><code>currentTransactionLineId</code> @api</td><td>Flow input — ID of the line that launched the configurator</td></tr>
+      <tr><td>3rd</td><td><code>transactionLineId</code> @api</td><td>Flow input — ID of the line being configured</td></tr>
+      <tr><td>4th</td><td>First item in <code>salesTransactionItems</code></td><td>Fallback when above are not set</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════ S4: CUSTOM FIELDS ════════════ -->
+<div class="section" id="s4">
+  <div class="section-label">Section 4</div>
+  <h2>Custom Fields Reference</h2>
+
+  <p>All fields are on the <strong>QuoteLineItem</strong> object. The <strong>Admin profile</strong> is configured with read and edit access to all seven fields.</p>
+
+  <table>
+    <thead><tr><th>API Name</th><th>Label</th><th>Type</th><th>Details</th><th>LWC Input</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>Special_Notes__c</code></td><td>Special Notes</td>
+        <td><span class="badge badge-blue">Text</span></td>
+        <td>Length 100</td><td>Text input</td>
+      </tr>
+      <tr>
+        <td><code>Apply_Contingency__c</code></td><td>Apply Contingency</td>
+        <td><span class="badge badge-green">Checkbox</span></td>
+        <td>Default: false. Saves immediately on toggle.</td><td>Toggle</td>
+      </tr>
+      <tr>
+        <td><code>Target_Margin__c</code></td><td>Target Margin</td>
+        <td><span class="badge badge-orange">Percent</span></td>
+        <td>Precision 18, Scale 2. Stored as-is (25 = 25%).</td><td>Number (percent-fixed)</td>
+      </tr>
+      <tr>
+        <td><code>Target_Price__c</code></td><td>Target Price</td>
+        <td><span class="badge badge-orange">Currency</span></td>
+        <td>Precision 18, Scale 2.</td><td>Number (currency)</td>
+      </tr>
+      <tr>
+        <td><code>Estimated_Delivery_Date__c</code></td><td>Estimated Delivery Date</td>
+        <td><span class="badge badge-blue">Date</span></td>
+        <td>—</td><td>Date picker</td>
+      </tr>
+      <tr>
+        <td><code>Hierarchy_Level__c</code></td><td>Hierarchy Level</td>
+        <td><span class="badge badge-blue">Number</span></td>
+        <td>Precision 18, Scale 0 (integer).</td><td>Number (integer)</td>
+      </tr>
+      <tr>
+        <td><code>PreferredDeliveryHour__c</code></td><td>Preferred Delivery Hour</td>
+        <td><span class="badge badge-green">Picklist</span></td>
+        <td>Values: None, AM, PM</td><td>Combobox</td>
+      </tr>
+      <tr>
+        <td><code>SubscriptionTerm</code></td><td>Subscription Term</td>
+        <td><span class="badge badge-gray">Number (standard)</span></td>
+        <td>Standard field — read via UIRecordAPI only. Not deployable as CustomField metadata.</td><td>Slider (1–5 years)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Note on STATE_FIELDS mapping:</strong> The LMS publish uses the bare field API name (e.g. <code>Special_Notes__c</code>), not the full qualified name, as expected by the Product Configurator Data Manager's <code>valueChanged</code> contract.
+  </div>
+</div>
+
+<!-- ═══════════════ S5: DEPLOYMENT ═══════════════ -->
+<div class="section" id="s5">
+  <div class="section-label">Section 5</div>
+  <h2>Installation &amp; Deployment</h2>
+
+  <h3>Prerequisites</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon blue">🛠</div>
+      <h4>Salesforce CLI</h4>
+      <p>Install the SF CLI: <code>npm install -g @salesforce/cli</code>. Verify with <code>sf --version</code>.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon green">🔐</div>
+      <h4>Authenticated Org</h4>
+      <p>Log in with: <code>sf org login web --alias myOrg</code>. The org must have Revenue Cloud Advanced enabled.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon orange">📦</div>
+      <h4>Node.js</h4>
+      <p>Node.js 18+ required for local dev tooling (<code>npm install</code> in the project root).</p>
+    </div>
+  </div>
+
+  <h3>Step-by-Step: Full Deployment</h3>
+
+  <ul class="steps">
+    <li>
+      <div class="step-content">
+        <h4>Clone / obtain the project</h4>
+        <p>Ensure the <code>ThirdPartyConfig</code> SFDX project folder is on your machine and you are in its root directory.</p>
+        <pre>cd ThirdPartyConfig</pre>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Authenticate to the target org</h4>
+        <pre>sf org login web --alias targetOrg --set-default</pre>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Deploy everything via the full manifest</h4>
+        <p>The <code>manifest/lwc.xml</code> package includes the LWC, all 7 custom fields, Admin profile permissions, the Flow, and the Apex class. Deploy order is managed automatically by the Metadata API.</p>
+        <pre>sf project deploy start --manifest manifest/lwc.xml</pre>
+        <div class="callout success">On success you will see <strong>Deploy Succeeded</strong> with a summary of all deployed components.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Verify the deployment</h4>
+        <pre><span class="cm"># List recently deployed metadata</span>
+sf project deploy report
+
+<span class="cm"># Or open the org and check Setup → Custom Fields on QuoteLineItem</span>
+sf org open --target-org targetOrg</pre>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Add the component to the configurator flow screen</h4>
+        <p>In Flow Builder, open <strong>RCA Custom Configuration Flow</strong> (or your custom clone of it), edit the <code>S01_ProductConfiguratorUI</code> screen, and drag <strong>Custom UI Component</strong> from the Components panel onto the canvas. Map the input properties as shown in Section 2.</p>
+      </div>
+    </li>
+  </ul>
+
+  <h3>Targeted Deployments</h3>
+  <table>
+    <thead><tr><th>What to deploy</th><th>Command</th></tr></thead>
+    <tbody>
+      <tr><td>LWC only</td><td><pre style="margin:0;padding:8px 12px">sf project deploy start --source-dir force-app/main/default/lwc/customProductHeader</pre></td></tr>
+      <tr><td>Custom fields only</td><td><pre style="margin:0;padding:8px 12px">sf project deploy start --manifest manifest/customField.xml</pre></td></tr>
+      <tr><td>Apex class only</td><td><pre style="margin:0;padding:8px 12px">sf project deploy start --manifest manifest/apex.xml</pre></td></tr>
+      <tr><td>Admin profile (after adding new fields)</td><td><pre style="margin:0;padding:8px 12px">sf project deploy start --source-dir force-app/main/default/profiles/Admin.profile-meta.xml</pre></td></tr>
+      <tr><td>Retrieve Admin profile from org</td><td><pre style="margin:0;padding:8px 12px">sf project retrieve start --manifest manifest/retrieve-sysadmin-profile.xml</pre></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════ S6: CONTEXT DEF ══════════════ -->
+<div class="section" id="s6">
+  <div class="section-label">Section 6</div>
+  <h2>Context Definition Setup</h2>
+
+  <p>The Product Configurator uses a <strong>Context Definition</strong> to map Salesforce record fields into the configurator's runtime context. To make the 7 new custom fields available within the configurator (for pricing procedures, constraint rules, etc.), you must update the Context Definition in your org.</p>
+
+  <div class="callout warn">
+    <strong>Important:</strong> Context Definition configuration is done entirely through the Salesforce UI in Setup — it cannot be deployed via metadata. Complete these steps after the metadata deployment in Section 5.
+  </div>
+
+  <h3>Understanding the Context Architecture</h3>
+  <table>
+    <thead><tr><th>Concept</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Context Definition</strong></td><td>A metadata-driven structure defining what data is loaded into the runtime context. Think of it as the schema for the configurator's "working memory".</td></tr>
+      <tr><td><strong>Node</strong></td><td>A container mapped to a Salesforce object (e.g. <em>SalesTransactionItem</em> → QuoteLineItem).</td></tr>
+      <tr><td><strong>Attribute</strong></td><td>A single field within a node, mapped to a specific object field API name.</td></tr>
+      <tr><td><strong>Context Mapping</strong></td><td>Defines how the context is hydrated (populated) at runtime — links nodes to actual record IDs.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Steps to Add Custom Fields to the Context Definition</h3>
+
+  <ul class="steps">
+    <li>
+      <div class="step-content">
+        <h4>Navigate to Context Definitions</h4>
+        <p>From <strong>Setup</strong>, search for <strong>Context Definitions</strong> in the Quick Find box and open it. Locate the active Context Definition used by your configurator (typically named something like <em>Product Configurator Context</em> or <em>Sales Transaction Context</em>).</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Open the SalesTransactionItem node</h4>
+        <p>Inside the Context Definition, find the node that maps to <strong>QuoteLineItem</strong>. This is typically named <code>SalesTransactionItem</code>. Click to open it.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Add Attributes for each custom field</h4>
+        <p>For each of the 7 custom fields, click <strong>New Attribute</strong> and fill in:</p>
+        <table>
+          <thead><tr><th>Attribute Name</th><th>Field API Name</th><th>Data Type</th></tr></thead>
+          <tbody>
+            <tr><td>Special Notes</td><td><code>Special_Notes__c</code></td><td>String</td></tr>
+            <tr><td>Apply Contingency</td><td><code>Apply_Contingency__c</code></td><td>Boolean</td></tr>
+            <tr><td>Target Margin</td><td><code>Target_Margin__c</code></td><td>Double</td></tr>
+            <tr><td>Target Price</td><td><code>Target_Price__c</code></td><td>Double</td></tr>
+            <tr><td>Estimated Delivery Date</td><td><code>Estimated_Delivery_Date__c</code></td><td>Date</td></tr>
+            <tr><td>Hierarchy Level</td><td><code>Hierarchy_Level__c</code></td><td>Double</td></tr>
+            <tr><td>Preferred Delivery Hour</td><td><code>PreferredDeliveryHour__c</code></td><td>String</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Save and activate the Context Definition</h4>
+        <p>After adding all attributes, click <strong>Save</strong>. If the definition requires activation, set its status to <strong>Active</strong>. Inactive context definitions will not hydrate data at runtime.</p>
+        <div class="callout success">Once active, the configurator will include the custom field values in the runtime context on every page load.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Assign Context Tags so that the attributes are accessible via LMS</h4>
+        <p> Create <strong>Context Tags</strong> that alias the new attributes. Note: tags don't need to match the field API name. When referencing from LMS, use the tag name, not the field API name instead of the field name</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <h4>Verify in a test configuration</h4>
+        <p>Open a Quote, launch the Product Configurator, and configure a product. Use browser developer tools (<strong>Console → Network</strong>) or the Apex <code>Context.IndustriesContext.queryTags()</code> API to confirm the new attributes appear in the context payload with correct values.</p>
+      </div>
+    </li>
+  </ul>
+
+</div>
+
+<!-- ═══════════════ FOOTER ════════════════════════ -->
+<div class="footer">
+  RCA Custom Configurator Component — ThirdPartyConfig &nbsp;|&nbsp; Salesforce Revenue Cloud Advanced &nbsp;|&nbsp; API v66.0
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
